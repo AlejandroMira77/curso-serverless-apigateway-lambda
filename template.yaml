@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Metadata:
+  Author: Antonella Mira
+  Description: Plantilla para la creación de una API REST
+  Version: '1.0'
+Parameters:
+  pNameProject:
+    Description: "Parameter with the name of the project"
+    Type: String
+    MinLength: 3
+    MaxLength: 15
+    Default: NameProjectDef
+Resources:
+  ApiRestGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: 'first-api-cloudformation'
+      Description: 'API creada con cloudformation'
+      Body:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: 'api-pets.yaml'
+  DeploymentApiRest:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      Description: 'Etapa de desarrollo'
+      RestApiId: !Ref ApiRestGateway
+      StageName: 'development'
+  RoleFunctionLambda:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: role-lambda-api
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+  LambdaFunctionAPI:
+    Type: AWS::Lambda::Function
+    Properties:
+      Architectures: # arquitectura del procesador
+        - x86_64
+      Code: 
+        ZipFile: |
+          import os
+          def handler(event, context):
+            return {"message": "Hello world with API Gateway and Lambda", "environment": os.environ.get("PROJECT")}
+      Description: Esta lambda devuelve un hola mundo y la variable de entorno
+      Environment:
+        Variables:
+          PROJECT: !Ref pNameProject
+      EphemeralStorage: # todas las funciones lambdas tienen acceso a un directorio
+        Size: 512
+      FunctionName: lambda-apigateway-code-template
+      Handler: index.handler
+      MemorySize: 128
+      PackageType: Zip
+      RecursiveLoop: Terminate
+      Role: !GetAtt RoleFunctionLambda.Arn
+      Runtime: python3.13
+      Tags:
+        - Key: "Project"
+          Value: "Udemy course of AWS Development serverless"
+      Timeout: 60

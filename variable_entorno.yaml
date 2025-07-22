@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Metadata:
+  Author: Antonella Mira
+  Description: Plantilla para la creación de una API REST
+  Version: '1.0'
+Resources:
+  ApiRestGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: 'first-api-cloudformation'
+      Description: 'API creada con cloudformation'
+      Body:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: 'api-pets.yaml'
+  DeploymentApiRest:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      Description: 'Etapa de desarrollo'
+      RestApiId: !Ref ApiRestGateway
+      StageName: 'development'
+  LambdaFunctionAPI:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: lambda-apigateway
+      Description: Esta lambda devuelve un hola mundo y la variable de entorno
+      Runtime: nodejs20.x
+      Handler: index.handler
+      Code:
+        S3Bucket: antonella-course-us-east-1
+        S3Key: apigateway/api.zip
+      Environment:
+        Variables:
+          MY_ENVIRONMENTVAR: "Hola soy la variable de entorno"
+      Timeout: 10
+      MemorySize: 128
+      Role: !GetAtt RoleFunctionLambda.Arn
+  RoleFunctionLambda:
+  Type: AWS::IAM::Role
+  Properties:
+    RoleName: role-lambda-api
+    AssumeRolePolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+    ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole

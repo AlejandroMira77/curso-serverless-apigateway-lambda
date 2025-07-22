@@ -1,0 +1,119 @@
+openapi: 3.0.4
+info:
+  title: ApiPets created with OpenAPI 3.0
+  description: "Antonella"
+  version: "1.0"
+paths:
+  /pet:
+    get:
+      tags:
+        - PetTag
+      description: "Resource to get a pet"
+      responses:
+        "200":
+          description: "Success operation"
+          content:
+            application/json: {}
+      x-amazon-apigateway-integration:
+        type: MOCK
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "when_no_templates"
+        responses:
+          default:
+            statusCode: "200"
+            responseTemplates:
+              application/json: |
+                {
+                  "petName": "Lucas",
+                  "age": 5,
+                  "type": "dog"
+                }
+    post:
+      tags:
+        - PetTag
+      description: "Resource to post a pet"
+      responses:
+        "200":
+          description: "Success operation"
+          content:
+            application/json: {}
+      x-amazon-apigateway-integration:
+        type: MOCK
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "when_no_templates"
+        responses:
+          default:
+            statusCode: "200"
+            responseTemplates:
+              application/json: |
+                {
+                  "message": "Pet uploaded successfully"
+                }
+    put:
+      tags:
+        - PetTag
+      description: "Resource to update all the pet"
+      responses:
+        "200":
+          description: "Success operation"
+          content:
+            application/json: {}
+      x-amazon-apigateway-integration:
+        type: MOCK
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "when_no_templates"
+        responses:
+          default:
+            statusCode: "200"
+            responseTemplates:
+              application/json: |
+                {
+                  "message": "Pet updated successfully"
+                }
+    patch:
+      tags:
+        - PetTag
+      description: "Resource to patch a pet"
+      responses:
+        "200":
+          description: "Success operation"
+          content:
+            application/json: {}
+      x-amazon-apigateway-integration:
+        type: MOCK
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "when_no_templates"
+        responses:
+          default:
+            statusCode: "200"
+            responseTemplates:
+              application/json: |
+                {
+                  "message": "Pet attribute updated successfully"
+                }
+    delete:
+      tags:
+        - PetTag
+      description: "Resource to delete a pet"
+      responses:
+        "200":
+          description: "Success operation"
+          content:
+            application/json: {}
+      x-amazon-apigateway-integration:
+        type: MOCK
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "when_no_templates"
+        responses:
+          default:
+            statusCode: "200"
+            responseTemplates:
+              application/json: |
+                {
+                  "message": "Pet delete successfully"
+                }
