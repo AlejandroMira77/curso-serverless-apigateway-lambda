@@ -47,9 +47,22 @@ Resources:
         - x86_64
       Code: 
         ZipFile: |
+          import json
           import os
-          def handler(event, context):
-            return {"message": "Hello world with API Gateway and Lambda", "environment": os.environ.get("PROJECT")}
+          def handler(event: dict, context):
+            http_method = event.get("httpMethod")
+            body_response: dict = {
+              "message": "Hello world with API Gateway and Lambda",
+              "environment": os.environ.get("PROJECT"),
+              "http": http_method
+            }
+            return {
+              "statusCode": 200,
+              "body": json.dumps(body_response),
+              "headers": {
+                "Content-Type": "application/json"
+              }
+            }
       Description: Esta lambda devuelve un hola mundo y la variable de entorno
       Environment:
         Variables:
@@ -67,3 +80,11 @@ Resources:
         - Key: "Project"
           Value: "Udemy course of AWS Development serverless"
       Timeout: 60
+  LambdaPermissionApiGateway:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref LambdaFunctionAPI
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Sub: "arn:aws:execute-api:us-east-1:${AWS::AccountId}:${ApiRestGateway}/*/*/*"

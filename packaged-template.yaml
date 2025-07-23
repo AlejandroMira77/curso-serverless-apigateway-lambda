@@ -20,7 +20,7 @@ Resources:
         Fn::Transform:
           Name: AWS::Include
           Parameters:
-            Location: s3://antonella-course-us-east-1/500f306cf17ee18a38e75c00b0d88a00
+            Location: s3://antonella-course-us-east-1/544f0c0e3895fc4133121dcc94b2724e
   DeploymentApiRest:
     Type: AWS::ApiGateway::Deployment
     Properties:
@@ -71,3 +71,12 @@ Resources:
       - Key: Project
         Value: Udemy course of AWS Development serverless
       Timeout: 60
+  LambdaPermissionApiGateway:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName:
+        Ref: LambdaFunctionAPI
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Sub: arn:aws:execute-api:us-east-1:${AWS::AccountId}:${ApiRestGateway}/*/*/*

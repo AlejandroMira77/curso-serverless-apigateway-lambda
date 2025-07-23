@@ -38,3 +38,6 @@ aws cloudformation deploy --template-file packaged-template.yaml --stack-name St
 # este es el comando que genera
 aws cloudformation describe-change-set --change-set-name arn:aws:cloudformation:us-east-1:185226996839:changeSet/awscli-cloudformation-package-deploy-1753224484/8136888e-178e-4e97-9774-c0b58c6e9911
 aws cloudformation deploy --template-file packaged-template.yaml --stack-name StackApiGateway --capabilities CAPABILITY_NAMED_IAM --parameter-overrides pNameProject=CourseUdemy
+
+# obtener info de la lambda
+aws lambda get-function-configuration --function-name lambda-apigateway-code-template

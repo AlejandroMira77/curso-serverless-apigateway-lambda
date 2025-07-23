@@ -15,20 +15,13 @@ paths:
           content:
             application/json: {}
       x-amazon-apigateway-integration:
-        type: MOCK
-        requestTemplates:
-          application/json: "{\"statusCode\": 200}"
+        type: AWS
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:185226996839:function:lambda-apigateway-code-template/invocations"
+        httpMethod: "POST"
         passthroughBehavior: "when_no_templates"
         responses:
           default:
             statusCode: "200"
-            responseTemplates:
-              application/json: |
-                {
-                  "petName": "Lucas",
-                  "age": 5,
-                  "type": "dog"
-                }
     post:
       tags:
         - PetTag
