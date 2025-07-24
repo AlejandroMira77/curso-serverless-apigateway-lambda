@@ -41,3 +41,7 @@ aws cloudformation deploy --template-file packaged-template.yaml --stack-name St
 
 # obtener info de la lambda
 aws lambda get-function-configuration --function-name lambda-apigateway-code-template
+
+# comandos de la solucion de laboratorio
+aws cloudformation package --template-file template.yaml --s3-bucket antonella-course-us-east-1 --output-template-file packaged-template.yaml
+aws cloudformation deploy --template-file packaged-template.yaml --stack-name StackApiGateway --capabilities CAPABILITY_NAMED_IAM --parameter-overrides pNameProject=CourseUdemy pTimestamp=$(date +%Y%m%d%H%M%S)

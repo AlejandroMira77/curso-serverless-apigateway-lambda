@@ -10,21 +10,26 @@ Parameters:
     MinLength: 3
     MaxLength: 15
     Default: NameProjectDef
+  pTimestamp:
+    Description: Parameter with the timestamp to force the deployment
+    Type: String
 Resources:
   ApiRestGateway:
     Type: AWS::ApiGateway::RestApi
     Properties:
       Name: first-api-cloudformation
-      Description: API creada con cloudformation
+      Description:
+        Fn::Sub: API creada con cloudformation - ${pTimestamp}
       Body:
         Fn::Transform:
           Name: AWS::Include
           Parameters:
-            Location: s3://antonella-course-us-east-1/544f0c0e3895fc4133121dcc94b2724e
+            Location: s3://antonella-course-us-east-1/84f61ca65789239eb3f99abb6438be43
   DeploymentApiRest:
     Type: AWS::ApiGateway::Deployment
     Properties:
-      Description: Etapa de desarrollo
+      Description:
+        Fn::Sub: Etapa de desarrollo - ${pTimestamp}
       RestApiId:
         Ref: ApiRestGateway
       StageName: development
@@ -47,9 +52,30 @@ Resources:
       Architectures:
       - x86_64
       Code:
-        ZipFile: "import os\ndef handler(event, context):\n  return {\"message\":\
-          \ \"Hello world with API Gateway and Lambda\", \"environment\": os.environ.get(\"\
-          PROJECT\")}\n"
+        ZipFile: "import json\nimport uuid\nfrom datetime import datetime\n\npets:\
+          \ list = []\n\ndef handler(event: dict, context):\n    method = event.get(\"\
+          httpMethod\")\n\n    if method == \"POST\":\n        try:\n            body\
+          \ = json.loads(event.get(\"body\", \"{}\"))\n            new_pet = {\n \
+          \               \"id\": str(uuid.uuid4()),\n                \"name\": body.get(\"\
+          name\"),\n                \"type\": body.get(\"type\"),\n              \
+          \  \"age\": body.get(\"age\"),\n                \"created_at\": datetime.utcnow().isoformat()\n\
+          \            }\n\n            if not new_pet[\"name\"] or not new_pet[\"\
+          type\"] or new_pet[\"age\"] is None:\n                return {\n       \
+          \             \"statusCode\": 400,\n                    \"body\": json.dumps({\"\
+          message\": \"Data missing of the pet\"})\n                }\n          \
+          \  \n            pets.append(new_pet)\n\n            return {\n        \
+          \        \"statusCode\": 201,\n                \"body\": json.dumps({\n\
+          \                    \"message\": \"Pet registered successfully\",\n   \
+          \                 \"data\": new_pet\n                })\n            }\n\
+          \n        except Exception as e:\n            return {\n               \
+          \ \"statusCode\": 500,\n                \"body\": json.dumps({\"message\"\
+          : \"Internal server error\", \"error\": str(e)})\n            }\n\n    elif\
+          \ method == \"GET\":\n        return {\n            \"statusCode\": 200,\n\
+          \            \"body\": json.dumps({\n                \"message\": \"Pets\
+          \ list\",\n                \"data\": pets\n            })\n        }\n\n\
+          \    else:\n        return {\n            \"statusCode\": 405,\n       \
+          \     \"body\": json.dumps({\"message\": \"Method not allowed :c\"})\n \
+          \       }\n  \n"
       Description: Esta lambda devuelve un hola mundo y la variable de entorno
       Environment:
         Variables:
