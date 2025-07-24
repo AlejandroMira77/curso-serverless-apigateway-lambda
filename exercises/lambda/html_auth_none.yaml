@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Metadata:
+  Author: Antonella Mira
+  Description: Plantilla basica que retorna una web HTML
+  Version: '1.0'
+Resources:
+  MyLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: lambda-html
+      Description: Esta lambda se desarrolla para mostrar el uso de HTML con AWS lambda
+      Runtime: python3.13
+      Handler: code.handler   # el handler es la direccion en la cual se basa en el nombre del archivo junto el nombre de la function que se encarga de gestionar el evento que recibe la lambda
+      Code: # le indicamos donde almacena el codigo
+        S3Bucket: antonella-course-us-east-1
+        S3Key: practice_html/function_html.zip
+      Timeout: 10  # tiene 10seg para completar la funcion o si no se cierra
+      MemorySize: 128
+      Role: !GetAtt RoleFunction.Arn
+  # se requiere un role porque la lambda necesita permisos para ejecutarse
+  RoleFunction:
+    Type: AWS::IAM::Role
+    Properties:
+      # RoleName: role-lambda-cloudformation - comentamos el nombre porque aws asigna un id por defecto
+      # le aplicamos la politica de confianza directamente
+      # le permite al servicio lambda de asumir este role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns: # asigna politica administrada por aws
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+  MyPublicUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      AuthType: NONE
+      TargetFunctionArn: !GetAtt MyLambdaFunction.Arn # se utiliza GetAtt cuando queremos obtener un atributo como Arn
+  LambdaFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref MyLambdaFunction
+      Action: lambda:InvokeFunctionUrl
+      Principal: "*"
+      FunctionUrlAuthType: NONE

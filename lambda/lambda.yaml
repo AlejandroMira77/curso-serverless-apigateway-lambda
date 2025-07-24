@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Metadata:
+  Author: Antonella Mira
+  Description: Plantilla para lambda
+  Version: '1.0'
+Resources:
+  MyLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: lambda-with-cloudformation
+      Runtime: python3.13
+      Handler: code.lambda_handler   # el handler es la direccion en la cual se basa en el nombre del archivo junto el nombre de la function que se encarga de gestionar el evento que recibe la lambda
+      Code: # le indicamos donde almacena el codigo
+        S3Bucket: antonella-course-us-east-1
+        S3Key: function.zip
+      Timeout: 10  # tiene 10seg para completar la funcion o si no se cierra
+      MemorySize: 128
+      Role: !GetAtt RoleFunction.Arn
+  # se requiere un role porque la lambda necesita permisos para ejecutarse
+  RoleFunction:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: role-lambda-cloudformation
+      # le aplicamos la politica de confianza directamente
+      # le permite al servicio lambda de asumir este role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns: # asigna politica administrada por aws
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole

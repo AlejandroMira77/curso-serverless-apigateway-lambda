@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Metadata:
+  Author: Antonella Mira
+  Description: Plantilla básica con recurso IAM
+  Version: '1.0'
+Resources:
+# se crea el usuario con tags
+  UserIAM:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: groot
+      Tags:
+        - Key: 'Guardian'
+          Value: 'Galaxia'
+        - Key: 'Tipo'
+          Value: 'Flora Coloso'
+# se crea el grupo
+  GroupIAM:
+    Type: AWS::IAM::Group
+    Properties:
+      GroupName: Vengadores
+# se asocia el usuario al grupo      
+  AddUserToGroup:
+    Type: AWS::IAM::UserToGroupAddition
+    Properties:
+      GroupName: !Ref GroupIAM
+      Users:
+        - !Ref UserIAM
+# se crea la politica  y se la asocia a un grupo
+# con AWS::IAM::Policy solo se crea dentro del recurso en cambio con AWS::IAM::ManagedPolicy si se lista y se puede asociar a mas recursos
+  PolicyListBucketS3:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: PolicyListBucketS3Name
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: Stmt1742704866041
+            Effect: Allow
+            Action:
+              - s3:ListAllMyBuckets
+            Resource: '*'
+      Groups:
+        - !Ref GroupIAM

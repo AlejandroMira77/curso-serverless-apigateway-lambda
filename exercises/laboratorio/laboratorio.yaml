@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Metadata:
+  Author: Antonella Mira
+  Description: retorna función lambda laboratorio cold start
+  Version: '1.0'
+Resources:
+  LambdaFunctionColdStart:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: lambda-cold-start
+      Description: Esta lambda muestra el uso de cold start
+      Runtime: nodejs20.x
+      Handler: index.handler
+      Code:
+        S3Bucket: antonella-course-us-east-1
+        S3Key: laboratorio/cold_start.zip
+      Timeout: 10
+      MemorySize: 128
+      Role: !GetAtt RoleFunction.Arn
+  PublicUrlLambda:
+    Type: AWS::Lambda::Url
+    Properties:
+      AuthType: AWS_IAM
+      TargetFunctionArn: !GetAtt LambdaFunctionColdStart.Arn
+  PermissionLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref LambdaFunctionColdStart
+      Action: lambda:InvokeFunctionUrl
+      Principal: "*"
+      FunctionUrlAuthType: AWS_IAM
+  RoleFunction:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: role-cold-start
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
